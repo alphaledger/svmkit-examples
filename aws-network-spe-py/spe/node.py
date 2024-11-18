@@ -105,6 +105,11 @@ class Genesis:
         self.faucet_key = svmkit.KeyPair("faucet-key")
         self.treasury_key = svmkit.KeyPair("treasury-key")
         self.stake_account_key = svmkit.KeyPair("stake-account-key")
+        # the default global account to be used for paying tx and storage fees (unrelated to validators' setup) accross the network
+        self.global_fee_payer_key = svmkit.KeyPair("global-fee-payer-key")
+        # the default global account to be used to fund w/ SOL, via transfers, other accounts (unrelated to validators' setup) accross the network
+        self.global_treasury_account_key = svmkit.KeyPair(
+            "global-treasury-account-key")
 
         self.genesis = svmkit.genesis.Solana(
             "genesis",
@@ -130,10 +135,19 @@ class Genesis:
                     "pubkey": self.faucet_key.public_key,
                     "lamports": "1000000000000",  # 1000 SOL
                 },
+                {
+                    "pubkey": self.global_fee_payer_key.public_key,
+                    "lamports": "50000000000000",  # 50,000 SOL
+                },
+                {
+                    "pubkey": self.global_treasury_account_key.public_key,
+                    "lamports": "500000000000000",  # 500,000 SOL
+                },
             ],
             opts=pulumi.ResourceOptions(
                 depends_on=[self.bootstrap_node.instance])
         )
+
 
 class Info:
     def __init__(self, genesis: Genesis, other_validators=None):
